@@ -47,7 +47,7 @@ namespace EzOTP
         /// </summary>
         /// <param name="name">Algorithm name.</param>
         /// <returns>Created MAC provider instance.</returns>
-        /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="algo"/>.</exception>
+        /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="name"/>.</exception>
         public static IMacProvider FromName(string name)
         {
             if (!EnumNameConverter.Instance.TryConvert<MacAlgorithm>(name, out var algo))
