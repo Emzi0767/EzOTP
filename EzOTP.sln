@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "meta", "meta", "{C1869E40-CE1B-4C3C-9B50-836E1C7E7A6B}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.TXT = LICENSE.TXT
+		NOTICE.TXT = NOTICE.TXT
+		README.MD = README.MD
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{497C16F4-1685-4C75-974A-0D3964D0D51D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5E36C02E-BE62-43AB-A268-817F909997AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzOTP", "src\EzOTP\EzOTP.csproj", "{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzOTP.Tests", "tests\EzOTP.Tests\EzOTP.Tests.csproj", "{C17232E0-87C5-4DE1-BC2D-42F5466370AC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{36E4F130-7C3D-48A8-9486-64AF7F751418}"
+	ProjectSection(SolutionItems) = preProject
+		.github\FUNDING.yml = .github\FUNDING.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C17232E0-87C5-4DE1-BC2D-42F5466370AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C17232E0-87C5-4DE1-BC2D-42F5466370AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C17232E0-87C5-4DE1-BC2D-42F5466370AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C17232E0-87C5-4DE1-BC2D-42F5466370AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B179EB3B-B811-48A3-95A1-1BDD7FDBD2F8} = {497C16F4-1685-4C75-974A-0D3964D0D51D}
+		{C17232E0-87C5-4DE1-BC2D-42F5466370AC} = {5E36C02E-BE62-43AB-A268-817F909997AA}
+		{36E4F130-7C3D-48A8-9486-64AF7F751418} = {C1869E40-CE1B-4C3C-9B50-836E1C7E7A6B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E2B6B1DB-0FFD-4871-8AB5-86D617CBBA85}
+	EndGlobalSection
+EndGlobal
