@@ -15,6 +15,7 @@
 // limitations under the License.
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace EzOTP.Encoding
 {
@@ -28,12 +29,35 @@ namespace EzOTP.Encoding
             => ((4 * inputSize / 3) + 3) & ~3;
 
         public int EstimateDecodedSize(int inputSize)
-            => inputSize / 4 * 3;
+            => inputSize * 3 / 4;
 
         public bool TryEncode(ReadOnlySpan<byte> input, Span<char> output, out int charsWritten)
-            => Convert.TryToBase64Chars(input, output, out charsWritten, Base64FormattingOptions.None);
+        {
+            if (!Convert.TryToBase64Chars(input, output, out charsWritten, Base64FormattingOptions.None))
+                return false;
+
+            if (output[charsWritten - 2] == '=')
+                charsWritten -= 2;
+            else if (output[charsWritten - 1] == '=')
+                charsWritten--;
+
+            return true;
+        }
 
         public bool TryDecode(ReadOnlySpan<char> input, Span<byte> output, out int bytesWritten)
-            => Convert.TryFromBase64Chars(input, output, out bytesWritten);
+        {
+            var len = input.Length;
+            var mod = len % 4;
+            if (mod == 0)
+                return Convert.TryFromBase64Chars(input, output, out bytesWritten);
+
+            var pads = 4 - mod;
+            Span<char> inpad = stackalloc char[len + pads];
+            input.CopyTo(inpad);
+            while (pads > 0)
+                inpad[^pads--] = '=';
+
+            return Convert.TryFromBase64Chars(inpad, output, out bytesWritten);
+        }
     }
 }
