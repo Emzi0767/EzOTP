@@ -78,8 +78,8 @@ namespace EzOTP.Tests
 
         [DataTestMethod]
         [DataRow(ByteEncoding.Base16, DBase16D1, DBase16E1)]
-        //[DataRow(ByteEncoding.Base32, DBase32D1, DBase32E1)]
-        //[DataRow(ByteEncoding.Base32, DBase32D4, DBase32E4)]
+        [DataRow(ByteEncoding.Base32, DBase32D1, DBase32E1)]
+        [DataRow(ByteEncoding.Base32, DBase32D4, DBase32E4)]
         [DataRow(ByteEncoding.Base64, DBase64D1, DBase64E1)]
         [DataRow(ByteEncoding.Base64, DBase64D3, DBase64E3)]
         public void TestEncoding(ByteEncoding encid, string input, string result)

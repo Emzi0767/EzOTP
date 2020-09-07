@@ -50,7 +50,37 @@ namespace EzOTP.Encoding
 
         public bool TryEncode(ReadOnlySpan<byte> input, Span<char> output, out int charsWritten)
         {
-            throw new NotImplementedException();
+            charsWritten = 0;
+            if (output.Length < this.EstimateEncodedSize(input.Length))
+                return false;
+
+            var pushed = 0;
+            var buff = 0;
+            var op = 0;
+            var i = 0;
+            for (; i < input.Length; i++)
+            {
+                var @in = input[i];
+                buff = (buff << 8) | @in;
+                pushed += 8;
+                
+                while (pushed >= PushSize)
+                {
+                    var t = (buff >> (pushed -= PushSize)) & 0x1F;
+                    var c = Alphabet[t];
+                    output[op++] = c;
+                }
+            }
+
+            if (pushed > 0)
+            {
+                var mask = (1 << pushed) - 1;
+                var t = buff & mask;
+                output[op++] = Alphabet[t];
+            }
+
+            charsWritten = op;
+            return true;
         }
 
         public bool TryDecode(ReadOnlySpan<char> input, Span<byte> output, out int bytesWritten)
