@@ -60,7 +60,7 @@ namespace EzOTP
             int digits,
             byte[] additional,
             long counter)
-            : base(ChallengeType.Time, label, issuer, secret, encoding, algo, digits, additional)
+            : base(ChallengeType.Counter, label, issuer, secret, encoding, algo, digits, additional)
         {
             Volatile.Write(ref this._counter, counter);
         }

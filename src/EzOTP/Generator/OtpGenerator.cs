@@ -15,6 +15,8 @@
 // limitations under the License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace EzOTP
 {
@@ -42,23 +44,35 @@ namespace EzOTP
         /// </summary>
         /// <param name="offset">Counter offset to use when generating.</param>
         /// <returns>Generated password.</returns>
-        public int GenerateRaw(long offset = 0L)
+        public int GenerateRaw(int offset = 0)
         {
-            var bufflen = 8 + this.Settings.Additional.Length;
-            Span<byte> challenge = stackalloc byte[bufflen];
-            if (!this.Settings.TryGetChallengeInput(challenge, out bufflen, offset))
-                throw new Exception("Failed to generate challenge.");
-
-            using var hmac = HmacProviderSelector.FromId(this.Settings.Algorithm);
-            Span<byte> buff = stackalloc byte[hmac.OutputSize];
-            if (!hmac.TryCompute(this.Settings.Secret.AsSpan(), challenge, buff, out bufflen))
-                throw new Exception("Failed to compute HMAC.");
-
-            var transformer = CodeTransformerSelector.FromId(CodeTransformer.Rfc4226);
-            if (!transformer.TryTransform(buff.Slice(0, bufflen), out var number))
-                throw new Exception("Failed to transform HMAC.");
+            var number = this.GenerateNumber(offset);
 
             return StringCodeFormatter.GetRawCode(number, this.Settings.Digits);
+        }
+
+        /// <summary>
+        /// Generates several raw codes. This is used to account for counter drift across 2 generators.
+        /// </summary>
+        /// <param name="window">
+        /// Number of additional codes to generate in each direction. For example, a value of 2 will generate 5 codes: 
+        /// 2 after the current value, 2 before, and one for current value. Non-positive value will use defaults of 1 
+        /// for TOTP, and 2 for HOTP.
+        /// </param>
+        /// <returns>Enumerable of generated codes.</returns>
+        public IEnumerable<int> GenerateRawWindow(int window = 0)
+        {
+            if (window == 0)
+                window = this.Settings.Type switch
+                {
+                    ChallengeType.Time    => 1,
+                    ChallengeType.Counter => 2,
+                    _                     => 0
+                };
+
+            var ctr = this.Settings.GetCounterValue();
+            for (var i = ctr - window; i <= ctr + window; i++)
+                yield return this.GenerateNumber(value: i);
         }
 
         /// <summary>
@@ -68,20 +82,9 @@ namespace EzOTP
         /// <param name="groupSize">Optional. Maximum number of digits per digit group.</param>
         /// <param name="offset">Counter offset to use when generating.</param>
         /// <returns>Whether the operation was successful.</returns>
-        public bool TryGenerate(Span<char> output, int groupSize = 0, long offset = 0L)
+        public bool TryGenerate(Span<char> output, int groupSize = 0, int offset = 0)
         {
-            var bufflen = 8 + this.Settings.Additional.Length;
-            Span<byte> challenge = stackalloc byte[bufflen];
-            if (!this.Settings.TryGetChallengeInput(challenge, out bufflen, offset))
-                return false;
-
-            using var hmac = HmacProviderSelector.FromId(this.Settings.Algorithm);
-            Span<byte> buff = stackalloc byte[hmac.OutputSize];
-            if (!hmac.TryCompute(this.Settings.Secret.AsSpan(), challenge, buff, out bufflen))
-                return false;
-
-            var transformer = CodeTransformerSelector.FromId(CodeTransformer.Rfc4226);
-            if (!transformer.TryTransform(buff.Slice(0, bufflen), out var number))
+            if (!this.TryGenerateNumber(offset, out var number))
                 return false;
 
             if (groupSize > 0)
@@ -96,26 +99,46 @@ namespace EzOTP
         /// <param name="groupSize">Optional. Maximum number of digits per digit group.</param>
         /// <param name="offset">Counter offset to use when generating.</param>
         /// <returns>Generated password.</returns>
-        public string Generate(int groupSize = 0, long offset = 0L)
+        public string Generate(int groupSize = 0, int offset = 0)
         {
-            var bufflen = 8 + this.Settings.Additional.Length;
-            Span<byte> challenge = stackalloc byte[bufflen];
-            if (!this.Settings.TryGetChallengeInput(challenge, out bufflen, offset))
-                throw new Exception("Failed to generate challenge.");
-
-            using var hmac = HmacProviderSelector.FromId(this.Settings.Algorithm);
-            Span<byte> buff = stackalloc byte[hmac.OutputSize];
-            if (!hmac.TryCompute(this.Settings.Secret.AsSpan(), challenge, buff, out bufflen))
-                throw new Exception("Failed to compute HMAC.");
-
-            var transformer = CodeTransformerSelector.FromId(CodeTransformer.Rfc4226);
-            if (!transformer.TryTransform(buff.Slice(0, bufflen), out var number))
-                throw new Exception("Failed to transform HMAC.");
+            var number = this.GenerateNumber(offset);
 
             if (groupSize > 0)
                 return StringCodeFormatter.FormatGroupped(number, this.Settings.Digits, groupSize);
             else
                 return StringCodeFormatter.Format(number, this.Settings.Digits);
+        }
+
+        /// <summary>
+        /// Generates several raw codes. This is used to account for counter drift across 2 generators.
+        /// </summary>
+        /// <param name="window">
+        /// Number of additional codes to generate in each direction. For example, a value of 2 will generate 5 codes: 
+        /// 2 after the current value, 2 before, and one for current value. Non-positive value will use defaults of 1 
+        /// for TOTP, and 2 for HOTP.
+        /// </param>
+        /// <param name="groupSize">Optional. Maximum number of digits per digit group.</param>
+        /// <returns>Enumerable of generated codes.</returns>
+        public IEnumerable<string> GenerateWindow(int window = 0, int groupSize = 0)
+        {
+            if (window == 0)
+                window = this.Settings.Type switch
+                {
+                    ChallengeType.Time    => 1,
+                    ChallengeType.Counter => 2,
+                    _                     => 0
+                };
+
+            var ctr = this.Settings.GetCounterValue();
+            for (var i = ctr - window; i <= ctr + window; i++)
+            {
+                var number = this.GenerateNumber(value: i);
+
+                if (groupSize > 0)
+                    yield return StringCodeFormatter.FormatGroupped(number, this.Settings.Digits, groupSize);
+                else
+                    yield return StringCodeFormatter.Format(number, this.Settings.Digits);
+            }
         }
 
         /// <summary>
@@ -132,5 +155,61 @@ namespace EzOTP
         /// <returns>Generator with parsed settings.</returns>
         public static OtpGenerator ParseUri(Uri uri)
             => new OtpGenerator(OtpGeneratorSettings.ParseUri(uri));
+
+        private bool TryGenerateNumber(int offset, out int number, long? value = null)
+        {
+            number = 0;
+
+            var bufflen = 8 + this.Settings.Additional.Length;
+            Span<byte> challenge = stackalloc byte[bufflen];
+            if (value == null)
+            {
+                if (!this.Settings.TryGetChallengeInput(challenge, out bufflen, offset))
+                    return false;
+            }
+            else
+            {
+                if (!this.Settings.TryGetChallengeInput(value.Value, challenge, out bufflen))
+                    return false;
+            }
+
+            using var hmac = HmacProviderSelector.FromId(this.Settings.Algorithm);
+            Span<byte> buff = stackalloc byte[hmac.OutputSize];
+            if (!hmac.TryCompute(this.Settings.Secret.AsSpan(), challenge, buff, out bufflen))
+                return false;
+
+            var transformer = CodeTransformerSelector.FromId(CodeTransformer.Rfc4226);
+            if (!transformer.TryTransform(buff.Slice(0, bufflen), out number))
+                return false;
+
+            return true;
+        }
+
+        private int GenerateNumber(int offset = 0, long? value = null)
+        {
+            var bufflen = 8 + this.Settings.Additional.Length;
+            Span<byte> challenge = stackalloc byte[bufflen];
+            if (value == null)
+            {
+                if (!this.Settings.TryGetChallengeInput(challenge, out bufflen, offset))
+                    throw new Exception("Failed to generate challenge.");
+            }
+            else
+            {
+                if (!this.Settings.TryGetChallengeInput(value.Value, challenge, out bufflen))
+                    throw new Exception("Failed to generate challenge.");
+            }
+
+            using var hmac = HmacProviderSelector.FromId(this.Settings.Algorithm);
+            Span<byte> buff = stackalloc byte[hmac.OutputSize];
+            if (!hmac.TryCompute(this.Settings.Secret.AsSpan(), challenge, buff, out bufflen))
+                throw new Exception("Failed to compute HMAC.");
+
+            var transformer = CodeTransformerSelector.FromId(CodeTransformer.Rfc4226);
+            if (!transformer.TryTransform(buff.Slice(0, bufflen), out var number))
+                throw new Exception("Failed to transform HMAC.");
+
+            return number;
+        }
     }
 }

@@ -28,7 +28,10 @@ namespace EzOTP.TestApp
             var otp = OtpGenerator.ParseUri(uri);
             while (true)
             {
-                Console.WriteLine(otp.Generate(3));
+                Console.WriteLine("New window:");
+                foreach (var code in otp.GenerateWindow(groupSize: 3))
+                    Console.WriteLine(code);
+
                 if (Console.ReadKey(true).KeyChar == 'q')
                     return;
             }

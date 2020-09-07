@@ -116,13 +116,23 @@ namespace EzOTP
         /// <param name="bytesWritten">Number of bytes written.</param>
         /// <param name="offset">Amount to offset the counter by.</param>
         /// <returns>Whether the operation was successful.</returns>
-        public bool TryGetChallengeInput(Span<byte> target, out int bytesWritten, long offset = 0L)
+        public bool TryGetChallengeInput(Span<byte> target, out int bytesWritten, int offset = 0)
+            => this.TryGetChallengeInput(this.GetCounterValue() + offset, target, out bytesWritten);
+
+        /// <summary>
+        /// Generates input for the HMAC provider.
+        /// </summary>
+        /// <param name="value">Counter value to use as basis.</param>
+        /// <param name="target">Target buffer to place the challenge into.</param>
+        /// <param name="bytesWritten">Number of bytes written.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public bool TryGetChallengeInput(long value, Span<byte> target, out int bytesWritten)
         {
             bytesWritten = 0;
             if (target.Length < 8 + this.Additional.Length)
                 return false;
 
-            BinaryPrimitives.WriteInt64BigEndian(target, this.GetCounterValue() + offset);
+            BinaryPrimitives.WriteInt64BigEndian(target, value);
             this.Additional.AsSpan().CopyTo(target.Slice(8));
             return true;
         }
@@ -132,12 +142,20 @@ namespace EzOTP
         /// </summary>
         /// <param name="offset">Amount to offset the counter by.</param>
         /// <returns>Generated input.</returns>
-        public byte[] GetChallengeInput(long offset = 0L)
+        public byte[] GetChallengeInput(int offset = 0)
+            => this.GetChallengeInput(this.GetCounterValue() + offset);
+
+        /// <summary>
+        /// Generates input for the HMAC provider.
+        /// </summary>
+        /// <param name="value">Counter value to use as basis.</param>
+        /// <returns>Generated input.</returns>
+        public byte[] GetChallengeInput(long value)
         {
             var buff = new byte[8 + this.Additional.Length];
             var buffs = buff.AsSpan();
 
-            BinaryPrimitives.WriteInt64BigEndian(buffs, this.GetCounterValue() + offset);
+            BinaryPrimitives.WriteInt64BigEndian(buffs, value);
             this.Additional.AsSpan().CopyTo(buffs.Slice(8));
             return buff;
         }
