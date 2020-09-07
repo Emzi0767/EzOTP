@@ -15,31 +15,23 @@
 // limitations under the License.
 
 using System;
-using System.Security.Cryptography;
 
-namespace EzOTP.Cryptography.Mac
+namespace EzOTP.TestApp
 {
-    internal abstract class HmacProvider : IHmacProvider
+    public static class Program
     {
-        public abstract int OutputSize { get; }
-
-        protected HMAC Hmac { get; }
-
-        protected HmacProvider(HMAC hmac)
+        public static void Main(string[] args)
         {
-            this.Hmac = hmac;
-        }
-
-        bool IHmacProvider.TryCompute(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> message, Span<byte> result, out int bytesWritten)
-        {
-            lock (this.Hmac)
+            Console.WriteLine("Enter URI to parse:");
+            var suri = Console.ReadLine();
+            var uri = new Uri(suri);
+            var otp = OtpGenerator.ParseUri(uri);
+            while (true)
             {
-                this.Hmac.Key = secret.ToArray();
-                return this.Hmac.TryComputeHash(message, result, out bytesWritten);
+                Console.WriteLine(otp.Generate(3));
+                if (Console.ReadKey(true).KeyChar == 'q')
+                    return;
             }
         }
-
-        void IDisposable.Dispose()
-            => this.Hmac.Dispose();
     }
 }

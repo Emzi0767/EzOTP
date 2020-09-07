@@ -37,7 +37,7 @@ namespace EzOTP
         /// <summary>
         /// Defines the challenge type to be plain counter (HOTP).
         /// </summary>
-        [EnumName("counter", "hmac", "htop")]
+        [EnumName("counter", "hmac", "hotp")]
         Counter = 2
     }
 }

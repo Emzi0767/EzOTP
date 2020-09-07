@@ -36,6 +36,6 @@ namespace EzOTP
         /// <param name="result">Buffer to place the resulting HMAC in. Its size should be at least <see cref="OutputSize"/>-long.</param>
         /// <param name="bytesWritten">Number of bytes written to the output. This value should typically be negative if the computation fails, or <see cref="OutputSize"/> if the computation succeeds.</param>
         /// <returns>Whether the operation was successful.</returns>
-        bool Compute(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> message, Span<byte> result, out int bytesWritten);
+        bool TryCompute(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> message, Span<byte> result, out int bytesWritten);
     }
 }

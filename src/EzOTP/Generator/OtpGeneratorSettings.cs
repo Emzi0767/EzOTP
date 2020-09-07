@@ -116,10 +116,10 @@ namespace EzOTP
         /// <param name="bytesWritten">Number of bytes written.</param>
         /// <param name="offset">Amount to offset the counter by.</param>
         /// <returns>Whether the operation was successful.</returns>
-        public bool GetChallengeInput(Span<byte> target, out int bytesWritten, long offset = 0L)
+        public bool TryGetChallengeInput(Span<byte> target, out int bytesWritten, long offset = 0L)
         {
             bytesWritten = 0;
-            if (target.Length < this.Secret.Length + this.Additional.Length)
+            if (target.Length < 8 + this.Additional.Length)
                 return false;
 
             BinaryPrimitives.WriteInt64BigEndian(target, this.GetCounterValue() + offset);
@@ -134,7 +134,7 @@ namespace EzOTP
         /// <returns>Generated input.</returns>
         public byte[] GetChallengeInput(long offset = 0L)
         {
-            var buff = new byte[this.Secret.Length + this.Additional.Length];
+            var buff = new byte[8 + this.Additional.Length];
             var buffs = buff.AsSpan();
 
             BinaryPrimitives.WriteInt64BigEndian(buffs, this.GetCounterValue() + offset);
