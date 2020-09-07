@@ -27,6 +27,7 @@ namespace EzOTP.Encoding
         // implementation will work as if the inputs are always small.
 
         private const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        private const int PushSize = 5; // base32 is a 5-bit encoding
 
         private static IReadOnlyDictionary<char, byte> ValueMap { get; }
 
@@ -58,65 +59,27 @@ namespace EzOTP.Encoding
             if (output.Length < this.EstimateDecodedSize(input.Length))
                 return false;
 
-            byte buff = 0, t;
+            var pushed = 0;
+            var buff = 0;
             var op = 0;
             var i = 0;
-            var cycle = 0;
             for (; i < input.Length && input[i] != '='; i++)
             {
-                if (!ValueMap.TryGetValue(input[i], out t))
+                if (!ValueMap.TryGetValue(input[i], out var t))
                     return false;
 
-                cycle = i % 8;
-                switch (cycle)
+                buff = (buff << PushSize) | t;
+                pushed += PushSize;
+
+                if (pushed >= 8) // crossed a byte boundary, commit
                 {
-                    case 0:
-                        buff = (byte)(t << 3);
-                        break;
-
-                    case 1:
-                        PushCommit(ref buff, t, 2, 6, output, op++);
-                        break;
-
-                    case 2:
-                        buff |= (byte)(t << 1);
-                        break;
-
-                    case 3:
-                        PushCommit(ref buff, t, 4, 4, output, op++);
-                        break;
-
-                    case 4:
-                        PushCommit(ref buff, t, 1, 7, output, op++);
-                        break;
-
-                    case 5:
-                        buff |= (byte)(t << 2);
-                        break;
-
-                    case 6:
-                        PushCommit(ref buff, t, 3, 5, output, op++);
-                        break;
-
-                    case 7:
-                        buff |= t;
-                        output[op++] = buff;
-                        break;
+                    output[op++] = (byte)(buff >> (pushed - 8));
+                    pushed -= 8;
                 }
             }
 
-            //if (cycle != 7)
-            //    output[op] = buff;
-
             bytesWritten = op;
             return true;
-
-            void PushCommit(ref byte acc, byte v, int top, int bottom, Span<byte> dest, int destIdx)
-            {
-                acc |= (byte)(v >> top);
-                dest[destIdx] = acc;
-                acc = (byte)(t << bottom);
-            }
         }
 
         private sealed class CaseInsensitiveCharComparer : IEqualityComparer<char>
