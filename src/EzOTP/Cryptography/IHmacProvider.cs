@@ -21,7 +21,7 @@ namespace EzOTP
     /// <summary>
     /// Performs hashing operations using HMAC-family algorithms.
     /// </summary>
-    public interface IMacProvider : IDisposable
+    public interface IHmacProvider : IDisposable
     {
         /// <summary>
         /// Gets the output size of this algorithm, in bytes.

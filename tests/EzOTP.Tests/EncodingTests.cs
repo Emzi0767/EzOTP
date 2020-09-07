@@ -22,7 +22,7 @@ using E = System.Text.Encoding;
 namespace EzOTP.Tests
 {
     [TestClass]
-    public class EncodingTests
+    public sealed class EncodingTests
     {
         private const string DBase16E1 = "6E6F7065";
         private const string DBase16D1 = "nope";

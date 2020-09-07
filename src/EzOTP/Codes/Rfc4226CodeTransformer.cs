@@ -14,16 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Security.Cryptography;
+using System;
+using System.Buffers.Binary;
 
-namespace EzOTP.Cryptography.Mac
+namespace EzOTP.Codes
 {
-    internal sealed class MacSha256Provider : MacProvider
+    internal sealed class Rfc4226CodeTransformer : ICodeTransformer
     {
-        public override int OutputSize => 32; // 256 bits, /8 = 32 bytes
+        public bool TryTransform(ReadOnlySpan<byte> input, out int output)
+        {
+            output = -1;
+            var offset = input[^1] & 0xF;
+            if (offset + 3 >= input.Length)
+                return false;
 
-        public MacSha256Provider()
-            : base(new HMACSHA256())
-        { }
+            output = BinaryPrimitives.ReadInt32BigEndian(input.Slice(offset)) & 0x7FFFFFFF;
+            return true;
+        }
     }
 }

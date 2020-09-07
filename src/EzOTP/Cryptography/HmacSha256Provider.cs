@@ -14,32 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Security.Cryptography;
 
 namespace EzOTP.Cryptography.Mac
 {
-    internal abstract class MacProvider : IMacProvider
+    internal sealed class HmacSha256Provider : HmacProvider
     {
-        public abstract int OutputSize { get; }
+        public override int OutputSize => 32; // 256 bits, /8 = 32 bytes
 
-        protected HMAC Hmac { get; }
-
-        protected MacProvider(HMAC hmac)
-        {
-            this.Hmac = hmac;
-        }
-
-        bool IMacProvider.Compute(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> message, Span<byte> result, out int bytesWritten)
-        {
-            lock (this.Hmac)
-            {
-                this.Hmac.Key = secret.ToArray();
-                return this.Hmac.TryComputeHash(message, result, out bytesWritten);
-            }
-        }
-
-        void IDisposable.Dispose()
-            => this.Hmac.Dispose();
+        public HmacSha256Provider()
+            : base(new HMACSHA256())
+        { }
     }
 }

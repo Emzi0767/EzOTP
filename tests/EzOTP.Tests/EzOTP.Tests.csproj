@@ -31,7 +31,7 @@
 
   <!-- Project info -->
   <PropertyGroup>
-    <RootNamespace>EzOTP</RootNamespace>
+    <RootNamespace>EzOTP.Tests</RootNamespace>
     <Version>1.0.0</Version>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>

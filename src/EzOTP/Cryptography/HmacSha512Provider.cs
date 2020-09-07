@@ -18,12 +18,12 @@ using System.Security.Cryptography;
 
 namespace EzOTP.Cryptography.Mac
 {
-    internal sealed class MacSha384Provider : MacProvider
+    internal sealed class HmacSha512Provider : HmacProvider
     {
-        public override int OutputSize => 48; // 384 bits, /8 = 48 bytes
+        public override int OutputSize => 64; // 512 bits, /8 = 64 bytes
 
-        public MacSha384Provider()
-            : base(new HMACSHA384())
+        public HmacSha512Provider()
+            : base(new HMACSHA512())
         { }
     }
 }

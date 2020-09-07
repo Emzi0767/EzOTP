@@ -18,11 +18,11 @@ using System.Security.Cryptography;
 
 namespace EzOTP.Cryptography.Mac
 {
-    internal sealed class MacSha1Provider : MacProvider
+    internal sealed class HmacSha1Provider : HmacProvider
     {
         public override int OutputSize => 20; // 160 bits, /8 = 20 bytes
 
-        public MacSha1Provider()
+        public HmacSha1Provider()
             : base(new HMACSHA1())
         { }
     }

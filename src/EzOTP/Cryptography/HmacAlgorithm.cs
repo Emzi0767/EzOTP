@@ -21,7 +21,7 @@ namespace EzOTP
     /// <summary>
     /// Specifies a MAC algorithm to use for OTP generation.
     /// </summary>
-    public enum MacAlgorithm : int
+    public enum HmacAlgorithm : int
     {
         /// <summary>
         /// Specifies unknown algorithm type.

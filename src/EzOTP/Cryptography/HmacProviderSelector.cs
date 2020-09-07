@@ -23,7 +23,7 @@ namespace EzOTP
     /// <summary>
     /// Provides facilities for selecting a MAC algorithm based on its name or identifier.
     /// </summary>
-    public static class MacProviderSelector
+    public static class HmacProviderSelector
     {
         /// <summary>
         /// Creates a MAC provider instance based on its Id.
@@ -31,14 +31,14 @@ namespace EzOTP
         /// <param name="algo">Algorithm Id.</param>
         /// <returns>Created MAC provider instance.</returns>
         /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="algo"/>.</exception>
-        public static IMacProvider FromId(MacAlgorithm algo)
+        public static IHmacProvider FromId(HmacAlgorithm algo)
             => algo switch
             {
-                MacAlgorithm.Md5    => new MacMd5Provider(),
-                MacAlgorithm.Sha1   => new MacSha1Provider(),
-                MacAlgorithm.Sha256 => new MacSha256Provider(),
-                MacAlgorithm.Sha384 => new MacSha384Provider(),
-                MacAlgorithm.Sha512 => new MacSha512Provider(),
+                HmacAlgorithm.Md5    => new HmacMd5Provider(),
+                HmacAlgorithm.Sha1   => new HmacSha1Provider(),
+                HmacAlgorithm.Sha256 => new HmacSha256Provider(),
+                HmacAlgorithm.Sha384 => new HmacSha384Provider(),
+                HmacAlgorithm.Sha512 => new HmacSha512Provider(),
                 _                   => throw new ArgumentException("Invalid algorithm specified.", nameof(algo))
             };
 
@@ -48,9 +48,9 @@ namespace EzOTP
         /// <param name="name">Algorithm name.</param>
         /// <returns>Created MAC provider instance.</returns>
         /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="name"/>.</exception>
-        public static IMacProvider FromName(string name)
+        public static IHmacProvider FromName(string name)
         {
-            if (!EnumNameConverter.Instance.TryConvert<MacAlgorithm>(name, out var algo))
+            if (!EnumNameConverter.Instance.TryConvert<HmacAlgorithm>(name, out var algo))
                 throw new ArgumentException("Invalid algorithm specified.", nameof(name));
 
             return FromId(algo);
