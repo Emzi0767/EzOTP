@@ -26,6 +26,19 @@ namespace EzOTP
     public static class ByteEncodingSelector
     {
         /// <summary>
+        /// Parses encoding name to an enum.
+        /// </summary>
+        /// <param name="name">Name to parse.</param>
+        /// <returns>Enum value.</returns>
+        public static ByteEncoding ParseName(string name)
+        {
+            if (!EnumNameConverter.Instance.TryConvert<ByteEncoding>(name, out var algo))
+                throw new ArgumentException("Invalid encoding name specified.", nameof(name));
+
+            return algo;
+        }
+
+        /// <summary>
         /// Creates a byte encoder instance based on its Id.
         /// </summary>
         /// <param name="algo">Algorithm Id.</param>
@@ -34,9 +47,9 @@ namespace EzOTP
         public static IByteEncoding FromId(ByteEncoding algo)
             => algo switch
             {
-                ByteEncoding.Base16 => new Base16Encoding(),
-                ByteEncoding.Base32 => new Base32Encoding(),
-                ByteEncoding.Base64 => new Base64Encoding(),
+                ByteEncoding.Base16 => Base16Encoding.Instance,
+                ByteEncoding.Base32 => Base32Encoding.Instance,
+                ByteEncoding.Base64 => Base64Encoding.Instance,
                 _                   => throw new ArgumentException("Invalid encoding specified.", nameof(algo))
             };
 
@@ -47,11 +60,6 @@ namespace EzOTP
         /// <returns>Created encoder instance.</returns>
         /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="name"/>.</exception>
         public static IByteEncoding FromName(string name)
-        {
-            if (!EnumNameConverter.Instance.TryConvert<ByteEncoding>(name, out var algo))
-                throw new ArgumentException("Invalid encoding specified.", nameof(name));
-
-            return FromId(algo);
-        }
+            => FromId(ParseName(name));
     }
 }

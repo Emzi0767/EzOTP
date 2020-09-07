@@ -34,7 +34,7 @@ namespace EzOTP
         public static ICodeTransformer FromId(CodeTransformer algo)
             => algo switch
             {
-                CodeTransformer.Rfc4226 => new Rfc4226CodeTransformer(),
+                CodeTransformer.Rfc4226 => Rfc4226CodeTransformer.Instance,
                 _                       => throw new ArgumentException("Invalid transformer id specified.", nameof(algo))
             };
 

@@ -21,6 +21,8 @@ namespace EzOTP.Encoding
 {
     internal sealed class Base64Encoding : IByteEncoding
     {
+        internal static IByteEncoding Instance { get; } = new Base64Encoding();
+
         public bool CanEncode => true;
 
         public bool CanDecode => true;

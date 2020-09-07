@@ -23,6 +23,8 @@ namespace EzOTP.Encoding
 {
     internal sealed class Base32Encoding : IByteEncoding
     {
+        internal static IByteEncoding Instance { get; } = new Base32Encoding();
+
         // Do note, this implementation will fail for large strings, however we will not be handling those, so this 
         // implementation will work as if the inputs are always small.
 

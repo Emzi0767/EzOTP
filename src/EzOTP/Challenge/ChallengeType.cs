@@ -14,24 +14,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Buffers.Binary;
+using EzOTP.Internal;
 
-namespace EzOTP.Codes
+namespace EzOTP
 {
-    internal sealed class Rfc4226CodeTransformer : ICodeTransformer
+    /// <summary>
+    /// Defines the type of challenge feeding the OTP generator.
+    /// </summary>
+    public enum ChallengeType : int
     {
-        internal static ICodeTransformer Instance { get; } = new Rfc4226CodeTransformer();
+        /// <summary>
+        /// Defines an unknown challenge type.
+        /// </summary>
+        Unknown = 0,
 
-        public bool TryTransform(ReadOnlySpan<byte> input, out int output)
-        {
-            output = -1;
-            var offset = input[^1] & 0xF;
-            if (offset + 3 >= input.Length)
-                return false;
+        /// <summary>
+        /// Defines the challenge type to be a time-based counter (TOTP).
+        /// </summary>
+        [EnumName("time", "totp")]
+        Time = 1,
 
-            output = BinaryPrimitives.ReadInt32BigEndian(input.Slice(offset)) & 0x7FFFFFFF;
-            return true;
-        }
+        /// <summary>
+        /// Defines the challenge type to be plain counter (HOTP).
+        /// </summary>
+        [EnumName("counter", "hmac", "htop")]
+        Counter = 2
     }
 }

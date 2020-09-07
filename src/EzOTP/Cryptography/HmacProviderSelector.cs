@@ -26,6 +26,19 @@ namespace EzOTP
     public static class HmacProviderSelector
     {
         /// <summary>
+        /// Parses HMAC algorithm name to an enum.
+        /// </summary>
+        /// <param name="name">Name to parse.</param>
+        /// <returns>Enum value.</returns>
+        public static HmacAlgorithm ParseName(string name)
+        {
+            if (!EnumNameConverter.Instance.TryConvert<HmacAlgorithm>(name, out var algo))
+                throw new ArgumentException("Invalid algorithm specified.", nameof(name));
+
+            return algo;
+        }
+
+        /// <summary>
         /// Creates a MAC provider instance based on its Id.
         /// </summary>
         /// <param name="algo">Algorithm Id.</param>
@@ -49,11 +62,6 @@ namespace EzOTP
         /// <returns>Created MAC provider instance.</returns>
         /// <exception cref="ArgumentException">Unrecognized value specified for <paramref name="name"/>.</exception>
         public static IHmacProvider FromName(string name)
-        {
-            if (!EnumNameConverter.Instance.TryConvert<HmacAlgorithm>(name, out var algo))
-                throw new ArgumentException("Invalid algorithm specified.", nameof(name));
-
-            return FromId(algo);
-        }
+            => FromId(ParseName(name));
     }
 }
