@@ -2,6 +2,9 @@
 A simple, lightweight, and easy to use implementation of One-Time Password protocol, both time-based and counter-based 
 variants.
 
+## Installation
+To start using the package, just [install it from NuGet](https://www.nuget.org/packages/EzOTP/).
+
 ## Usage
 The library is designed to be fairly straightforward and easy to use.
 
@@ -71,7 +74,7 @@ Assuming that user-provided code is in an `int` variable called `userCode`, one 
 ```cs
 var otp = OtpGenerator.ParseUri("otpauth://totp/ACME%20Co:john@example.com?secret=DGW24UIKQZBELXEMY64PICAL5IGYMJM6&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30");
 if (!otp.GenerateRawWindow(window: 1).Contains(userCode))
-	// fail the authentication process
+    // fail the authentication process
 ```
 
 The method optionally takes a `window` argument, which defines the window size. Given a window size of `n`, EzOTP will 
@@ -89,6 +92,13 @@ directly. It's an abstract class, which serves as a common base for 2 configurat
 The configuration instance can then be supplied to the constructor of `OtpGenerator`. This allows for storing OTP 
 generator state and restoring it without having to use URIs. This is useful for HOTP particularly, where the counter 
 value has to be re-recorded after every generation.
+
+### Generating Google Authenticator URIs
+One can easily generate configurations for Google Authenticator, by using `GenerateGoogleAuthenticator()` static method 
+on either `TotpGeneratorConfiguration` or `HotpGeneratorConfiguration` classes.
+
+These methods return configuration objects, that can then be plugged into `OtpGenerator` constructor, or just returned 
+as an URI to a user.
 
 ## Support me
 Lots of effort went into making this software.
