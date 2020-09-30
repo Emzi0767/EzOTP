@@ -94,7 +94,7 @@ namespace EzOTP
         /// <returns>Created generator settings.</returns>
         public static HotpGeneratorSettings GenerateGoogleAuthenticator(string label, string issuer)
         {
-            var secret = new byte[80];
+            var secret = new byte[160 / 8];
             long counter;
             using (var rng = new SecureRandom())
             {
